@@ -8,8 +8,6 @@
 #include "copyright.h"
 #include "system.h"
 
-//Lab4:
-#include "synchlist.h"
 // This defines *all* of the global data structures used by Nachos.
 // These are all initialized and de-allocated by this file.
 
@@ -20,13 +18,6 @@ Interrupt *interrupt;			// interrupt status
 Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
 					// for invoking context switches
-//Lab1:Used for thread num limitation
-bool threadFlag[MaxThreadNum];
-Thread *thread_pointer[MaxThreadNum];
-
-//Lab4:create for stimulating producer-consumer problem
-//an object for testing
-buffer2* container;
 
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
@@ -69,7 +60,6 @@ extern void Cleanup();
 static void
 TimerInterruptHandler(int dummy)
 {
-    DEBUG('c', " << random Context Switch (stats->totalTicks = %d) >>\n", stats->totalTicks);
     if (interrupt->getStatus() != IdleMode)
 	interrupt->YieldOnReturn();
 }
@@ -90,11 +80,6 @@ Initialize(int argc, char **argv)
     int argCount;
     char* debugArgs = "";
     bool randomYield = FALSE;
-
-    //Lab1:Initialize thread variable
-    for(int i = 0;i < MaxThreadNum;i++){
-        threadFlag[i] =FALSE;
-    }
 
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE;	// single step user program

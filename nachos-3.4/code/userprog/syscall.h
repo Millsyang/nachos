@@ -124,17 +124,6 @@ void Fork(void (*func)());
  */
 void Yield();		
 
-//----------------------------------------------------------------------
-// AddressSpaceControlHandler
-// 	Handling address space control related system call.
-//  1. Exit
-//  2. Exec
-//  3. Join
-//----------------------------------------------------------------------
-void AddressSpaceControlHandler(int type);
-void FileSystemHandler(int type); // Create, Open, Write, Read, Close
-void UserLevelThreadsHandler(int type); // Fork, Yield
-
 #endif /* IN_ASM */
 
 #endif /* SYSCALL_H */

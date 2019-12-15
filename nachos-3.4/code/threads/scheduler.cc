@@ -56,8 +56,7 @@ Scheduler::ReadyToRun (Thread *thread)
     DEBUG('t', "Putting thread %s on ready list.\n", thread->getName());
 
     thread->setStatus(READY);
-    // readyList->Append((void *)thread);
-     readyList->SortedInsert((void *)thread, thread->getPriority()); // Lab2: insert Thread with priority
+    readyList->Append((void *)thread);
 }
 
 //----------------------------------------------------------------------
@@ -124,7 +123,7 @@ Scheduler::Run (Thread *nextThread)
     // point, we were still running on the old thread's stack!
     if (threadToBeDestroyed != NULL) {
         delete threadToBeDestroyed;
-	    threadToBeDestroyed = NULL;
+	threadToBeDestroyed = NULL;
     }
     
 #ifdef USER_PROGRAM

@@ -110,6 +110,7 @@ Interrupt::ChangeLevel(IntStatus old, IntStatus now)
 // Parameters:
 //	"now" -- the new interrupt status
 //----------------------------------------------------------------------
+
 IntStatus
 Interrupt::SetLevel(IntStatus now)
 {
@@ -118,13 +119,10 @@ Interrupt::SetLevel(IntStatus now)
     ASSERT((now == IntOff) || (inHandler == FALSE));// interrupt handlers are 
 						// prohibited from enabling 
 						// interrupts
-                        //so interrupt handlers in nachos
-                        //cannot be interrupted
+
     ChangeLevel(old, now);			// change to new state
-    if ((now == IntOn) && (old == IntOff))  
+    if ((now == IntOn) && (old == IntOff))
 	OneTick();				// advance simulated time
-                            //it means nachos use interrupt off -> on
-                            //make times going
     return old;
 }
 
@@ -242,7 +240,6 @@ Interrupt::Idle()
 void
 Interrupt::Halt()
 {
-    printf("timetick: %d",TimerTicks);
     printf("Machine halting!\n\n");
     stats->Print();
     Cleanup();     // Never returns.

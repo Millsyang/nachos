@@ -61,12 +61,8 @@ extern int testnum;
 
 extern void ThreadTest(void), Copy(char *unixFile, char *nachosFile);
 extern void Print(char *file), PerformanceTest(void);
-extern void StartTwoThread(char *file),StartProcess(char *file), ConsoleTest(char *in, char *out);
+extern void StartProcess(char *file), ConsoleTest(char *in, char *out);
 extern void MailTest(int networkID);
-//----------------------------------------------------------------------
-//add for tmp test
-//----------------------------------------------------------------------
-// extern void FileSysTest();
 
 //----------------------------------------------------------------------
 // main
@@ -91,7 +87,7 @@ main(int argc, char **argv)
     DEBUG('t', "Entering main");
     (void) Initialize(argc, argv);
     
-#if THREADS && !TEST_FILESYS
+#ifdef THREADS
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
       argCount = 1;
       switch (argv[0][1]) {
@@ -107,24 +103,17 @@ main(int argc, char **argv)
 
     ThreadTest();
 #endif
+
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
 	argCount = 1;
         if (!strcmp(*argv, "-z"))               // print copyright
             printf (copyright);
-		if (!strcmp(*argv, "-myTest")){
-			// FileSysTest();
-		}
 #ifdef USER_PROGRAM
-
         if (!strcmp(*argv, "-x")) {        	// run a user program
-	    	ASSERT(argc > 1);
+	    ASSERT(argc > 1);
             StartProcess(*(argv + 1));
             argCount = 2;
-        } else if(!strcmp(*argv, "-X")){    //Lab3:run two user programs(muti_thread)
-			ASSERT(argc > 1);
-            StartTwoThread(*(argv + 1));
-            argCount = 2;
-		}else if (!strcmp(*argv, "-c")) {      // test the console
+        } else if (!strcmp(*argv, "-c")) {      // test the console
 	    if (argc == 1)
 	        ConsoleTest(NULL, NULL);
 	    else {

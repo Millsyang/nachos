@@ -27,80 +27,6 @@
 #include "system.h"
 #include "filehdr.h"
 
-//Lab5
-#include <time.h>   //for get current time
-
-#define LevelMapNum SectorSize/sizeof(int)  
-
-//----------------------------------------------------------------------
-// printChar
-//    Print character as char if it is readable, otherwise its value.
-//
-//    (move the logic from which originally in FileHeader::Print to here)
-//----------------------------------------------------------------------
-char*
-printChar(char oriChar)
-{
-    if ('\040' <= oriChar && oriChar <= '\176') // isprint(oriChar)
-        printf("%c", oriChar); // Character content
-    else
-        printf("\\%x", (unsigned char)oriChar); // Unreadable binary content
-}
-
-//----------------------------------------------------------------------
-// getFileExtension
-//    Extract the file name to get the extension. If the file name don't
-//    have extension then return empty string. 
-//
-//      e.g. test.haha.pdf => "pdf"
-//      e.g. test.txt      => txt
-//      e.g. test.         => ""
-//      e.g. test          => ""
-//----------------------------------------------------------------------
-char* getFileExtension(char *filename){
-    char *dot = strrchr(filename,'.'); //return '.' and 
-                //alphas after it
-    if(!dot || dot == filename){
-        return "";
-    }
-    return dot+1;
-}
-
-//----------------------------------------------------------------------
-// getCurrentTime
-//    Return the sting of the time that we called it.
-//
-//    (use asctime to transfer to string)
-//----------------------------------------------------------------------
-char*
-getCurrentTime(void)
-{
-    time_t rawtime;
-    time(&rawtime); //return time(unit:s) from Greenwich mean time to now
-    struct tm* currentTime = localtime(&rawtime);//struct tm was defined in 
-                    //headerfile time.h 
-                    //localtime(time_t&) return a tm* data structure to
-                    //express local time    
-    return asctime(currentTime); // This somehow will generate extra '\n'
-                    //return a string to express local time
-}
-
-//----------------------------------------------------------------------
-// FileHeader::HeaderCreateInit
-//  Set the file type, time informations and other attribute.
-//  Invoke this when create a FileHeader first time.
-//  (not every "new FileHeader")
-//----------------------------------------------------------------------
-void
-FileHeader::HeaderCreateInit(char* ext){
-    setFileType(ext);
-
-    char* currentTimeString = getCurrentTime();
-    setCreateTime(currentTimeString);
-    setModifyTime(currentTimeString);
-    setVisitTime(currentTimeString);
-}
-
 //----------------------------------------------------------------------
 // FileHeader::Allocate
 // 	Initialize a fresh file header for a newly created file.
@@ -116,43 +42,12 @@ bool
 FileHeader::Allocate(BitMap *freeMap, int fileSize)
 { 
     numBytes = fileSize;
-    numSectors = divRoundUp(fileSize, SectorSize);
-#ifndef INDIRECT_MAP
+    numSectors  = divRoundUp(fileSize, SectorSize);
     if (freeMap->NumClear() < numSectors)
-        return FALSE; // not enough space
+	return FALSE;		// not enough space
+
     for (int i = 0; i < numSectors; i++)
-        dataSectors[i] = freeMap->Find();
-#else
-    if(numSectors <= NumDirectIndex){
-        DEBUG('f',"Allocating using direct indexing.\n");
-
-        int i = 0;
-        if (freeMap->NumClear() < numSectors)
-            return FALSE;//not enough space
-        for (i;i < numSectors;i++){
-            dataSectors[i] = freeMap->Find();
-        }
-    }else if(numSectors <= NumDirectIndex + LevelMapNum){
-        DEBUG('f',"Allocating using indirect indexing.\n");
-        
-        if (freeMap->NumClear() < numSectors + 1)
-            return FALSE;
-        for (int i = 0;i < NumDirectIndex;i++){
-            dataSectors[i] = freeMap->Find();
-        }
-        dataSectors[IndirectIndexSectorIdx] = freeMap->Find();
-        int singleIndirectIndex[LevelMapNum];
-        for (int i = 0;i < numSectors - NumDirectIndex;i++){
-            singleIndirectIndex[i] = freeMap->Find();
-        }
-        synchDisk->WriteSector(dataSectors[IndirectIndexSectorIdx],\
-                            (char*)singleIndirectIndex);
-
-    }else{
-        DEBUG('f',"File exceeded the maximum representation of the direct map.\n");
-        ASSERT(FALSE);
-    }
-#endif
+	dataSectors[i] = freeMap->Find();
     return TRUE;
 }
 
@@ -166,17 +61,10 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
 void 
 FileHeader::Deallocate(BitMap *freeMap)
 {
-    DEBUG('f',"Deallocating direct indexing table.\n");
-    for (int i = 0;i < numSectors && dataSectors[i]; i++) {
-        ASSERT(freeMap->Test((int)dataSectors[i])); // ought to be marked!
-        freeMap->Clear((int)dataSectors[i]);
+    for (int i = 0; i < numSectors; i++) {
+	ASSERT(freeMap->Test((int) dataSectors[i]));  // ought to be marked!
+	freeMap->Clear((int) dataSectors[i]);
     }
-
-#ifdef INDIRECT_MAP
-    if (numSectors > NumDirectIndex){
-        DEBUG('f',"Deallocating indirect indexing table.\n");
-    }
-#endif
 }
 
 //----------------------------------------------------------------------
@@ -218,7 +106,7 @@ FileHeader::WriteBack(int sector)
 int
 FileHeader::ByteToSector(int offset)
 {
-    return (dataSectors[offset / SectorSize]);
+    return(dataSectors[offset / SectorSize]);
 }
 
 //----------------------------------------------------------------------
@@ -244,17 +132,7 @@ FileHeader::Print()
     int i, j, k;
     char *data = new char[SectorSize];
 
-    printf("--------FileHeader contents--------\n");
-    
-    //Lab5:additional file atttibutes
-    printf("    File type: %s\n", fileType);
-    printf("    Created: %s", createdTime);
-    printf("    Modified: %s", modifiedTime);
-    printf("    Last visited: %s", lastVisitedTime);
-
-    printf("File size: %d.  File blocks:",numBytes);
-
-
+    printf("FileHeader contents.  File size: %d.  File blocks:\n", numBytes);
     for (i = 0; i < numSectors; i++)
 	printf("%d ", dataSectors[i]);
     printf("\nFile contents:\n");
@@ -268,16 +146,5 @@ FileHeader::Print()
 	}
         printf("\n"); 
     }
-
-    printf("----------------------------------------------\n");
     delete [] data;
 }
-
-//------------------------------------------------------------------------------------
-//Lab5:just for test
-//------------------------------------------------------------------------------------
-// void
-// FileSysTest(){
-//     printf("Direct Index Number is %d.\n",NumDirectIndex);
-// 	printf("Max FileSize is %d.\n",(NumDirectIndex * SectorSize) + (SectorSize*SectorSize)/sizeof(int));
-// }

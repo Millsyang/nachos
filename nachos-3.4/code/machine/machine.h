@@ -182,11 +182,6 @@ class Machine {
     TranslationEntry *pageTable;
     unsigned int pageTableSize;
 
-	//Lab3:for memory management
-	unsigned int bitmap; // This can record 32 allocation units (sizeof(int)*8 = 32). Current NumPhysPages is 32 too.
-    int allocateFrame(void); // Find a empty allocation unit to put physical page frames
-    void freeMem(void); // Free current page table physical page frames
-
   private:
     bool singleStep;		// drop back into the debugger after each
 				// simulated instruction

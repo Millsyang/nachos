@@ -15,15 +15,6 @@
 #include "interrupt.h"
 #include "stats.h"
 #include "timer.h"
-#include "synchlist.h"
-
-//Lab1:Thread manipulation variable
-#define MaxThreadNum 128
-extern bool threadFlag[MaxThreadNum];
-extern Thread *thread_pointer[MaxThreadNum];
-
-//Lab4
-extern buffer2* container; 
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,

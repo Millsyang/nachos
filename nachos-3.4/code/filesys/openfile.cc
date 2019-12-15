@@ -19,9 +19,6 @@
 #include <strings.h>
 #endif
 
-//Lab5:get current time string
-extern char* getCurrentTime(void);
-
 //----------------------------------------------------------------------
 // OpenFile::OpenFile
 // 	Open a Nachos file for reading and writing.  Bring the file header
@@ -34,7 +31,6 @@ OpenFile::OpenFile(int sector)
 { 
     hdr = new FileHeader;
     hdr->FetchFrom(sector);
-    hdr->setHeaderSector(sector); //Lab5:for update file header 
     seekPosition = 0;
 }
 
@@ -45,7 +41,6 @@ OpenFile::OpenFile(int sector)
 
 OpenFile::~OpenFile()
 {
-    hdr->WriteBack(hdr->getHeaderSector());//Lab5:update information info
     delete hdr;
 }
 
@@ -144,9 +139,6 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
 
     // copy the part we want
     bcopy(&buf[position - (firstSector * SectorSize)], into, numBytes);
-    
-    //Lab5:update file visit time
-    hdr->setVisitTime(getCurrentTime());
     delete [] buf;
     return numBytes;
 }
@@ -189,11 +181,6 @@ OpenFile::WriteAt(char *from, int numBytes, int position)
     for (i = firstSector; i <= lastSector; i++)	
         synchDisk->WriteSector(hdr->ByteToSector(i * SectorSize), 
 					&buf[(i - firstSector) * SectorSize]);
-    
-    //Lab5:update file visit and modify time
-    hdr->setVisitTime(getCurrentTime());
-    hdr->setModifyTime(getCurrentTime());
-
     delete [] buf;
     return numBytes;
 }

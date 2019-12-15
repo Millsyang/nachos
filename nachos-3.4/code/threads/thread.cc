@@ -30,33 +30,16 @@
 //	Thread::Fork.
 //
 //	"threadName" is an arbitrary string, useful for debugging.
-//  "p":priority of this thread
 //----------------------------------------------------------------------
-Thread::Thread(char* threadName,int p):priority(p)
-{
-    // Lab1: Allocate thread id for current thread
-    bool flag = FALSE;   //flag turns TRUE if successfullu allocated
-    for (int i = 0; i < MaxThreadNum; i++) { // sequential search
-        if (!threadFlag[i]) { // if found an empty space
-            this->threadID = i;
-            threadFlag[i] = TRUE;
-            thread_pointer[i] = this;
-            flag = TRUE;
-            break;
-        }
-    }
-    if(!flag){
-        printf("Reach maximum threads number %d, unable to allocate!!", MaxThreadNum);
-    }
-    ASSERT(flag);   //thread num over 128
 
+Thread::Thread(char* threadName)
+{
     name = threadName;
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
 #ifdef USER_PROGRAM
     space = NULL;
-    // filename = NULL;
 #endif
 }
 
@@ -78,9 +61,7 @@ Thread::~Thread()
 
     ASSERT(this != currentThread);
     if (stack != NULL)
-	DeallocBoundedArray((char *) stack, StackSize * sizeof(int)); //deallocte
-    //current stack of thread
-    threadFlag[this->threadID] = FALSE;
+	DeallocBoundedArray((char *) stack, StackSize * sizeof(int));
 }
 
 //----------------------------------------------------------------------

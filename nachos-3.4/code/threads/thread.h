@@ -79,17 +79,9 @@ class Thread {
     // THEY MUST be in this position for SWITCH to work.
     int* stackTop;			 // the current stack pointer
     int machineState[MachineStateSize];  // all registers except for stackTop
-    
-    //Lab 1:Add thread ID an user ID
-    int threadID;   //Lab1:Add thread ID
-    int userID;     //Lab1:Add user ID
-    //Lab 2:Add thread priority
-    int priority;
-    //Lab 6:Add thread open file name
-    // char* filename;
 
   public:
-    Thread(char* threadName,int p = 0);		// initialize a Thread 
+    Thread(char* debugName);		// initialize a Thread 
     ~Thread(); 				// deallocate a Thread
 					// NOTE -- thread being deleted
 					// must not be running when delete 
@@ -109,18 +101,6 @@ class Thread {
     void setStatus(ThreadStatus st) { status = st; }
     char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
-    
-    //Lab1:methods to manipulate threadID and userID
-    int getThreadID(){return threadID;}
-    int getUserID(){return userID;}
-    int getPriority(){return priority;}
-    ThreadStatus getThreadStatus(){return status;}
-    void setUserID(int uid){userID = uid;}
-    void setPriority(int p){priority = p;}
-    //Lab 6:get file name
-    // char* getFilename(){return filename;}
-
-    
 
   private:
     // some of the private data for this class is listed above

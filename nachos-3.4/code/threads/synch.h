@@ -80,10 +80,6 @@ class Lock {
   private:
     char* name;				// for debugging
     // plus some other stuff you'll need to define
-
-    //Lab4
-    Thread* holderThread;  //holder of this lock
-    Semaphore* semaphore;  //use semaphore to implement lock
 };
 
 // The following class defines a "condition variable".  A condition
@@ -136,8 +132,5 @@ class Condition {
   private:
     char* name;
     // plus some other stuff you'll need to define
-
-    //Lab4: Condition variable
-    List* waitQueue;
 };
 #endif // SYNCH_H

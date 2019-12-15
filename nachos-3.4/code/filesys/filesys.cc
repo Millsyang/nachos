@@ -61,11 +61,8 @@
 // supports extensible files, the directory size sets the maximum number 
 // of files that can be loaded onto the disk.
 #define FreeMapFileSize 	(NumSectors / BitsInByte)
-// #define NumDirEntries 		10
+#define NumDirEntries 		10
 #define DirectoryFileSize 	(sizeof(DirectoryEntry) * NumDirEntries)
-
-//Lab5:get file extension
-extern char* getFileExtension(char*);
 
 //----------------------------------------------------------------------
 // FileSystem::FileSystem
@@ -88,9 +85,6 @@ FileSystem::FileSystem(bool format)
         Directory *directory = new Directory(NumDirEntries);
 	FileHeader *mapHdr = new FileHeader;
 	FileHeader *dirHdr = new FileHeader;
-    //Lab5:init improved file header
-    mapHdr->HeaderCreateInit("bmap");
-    dirHdr->HeaderCreateInit("dir");
 
         DEBUG('f', "Formatting the file system.\n");
 
@@ -201,20 +195,19 @@ FileSystem::Create(char *name, int initialSize)
             success = FALSE;		// no free block for file header 
         else if (!directory->Add(name, sector))
             success = FALSE;	// no space in directory
-	    else {
+	else {
     	    hdr = new FileHeader;
-	        if (!hdr->Allocate(freeMap, initialSize))
+	    if (!hdr->Allocate(freeMap, initialSize))
             	success = FALSE;	// no space on disk for data
-	        else {	
-	    	    success = TRUE;
-                hdr->HeaderCreateInit(getFileExtension(name));
+	    else {	
+	    	success = TRUE;
 		// everthing worked, flush all changes back to disk
     	    	hdr->WriteBack(sector); 		
     	    	directory->WriteBack(directoryFile);
     	    	freeMap->WriteBack(freeMapFile);
-	        }
-            delete hdr;
 	    }
+            delete hdr;
+	}
         delete freeMap;
     }
     delete directory;
